@@ -1,3 +1,5 @@
 require './stream'
-run Sinatra.application
+require 'sinatra'
+require 'rubygems'
 
+run Sinatra::Application
