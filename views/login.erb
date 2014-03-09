@@ -1,0 +1,38 @@
+<h3 style="margin-left:50px">Sign In</h3>
+
+<div style="margin-left:50px">
+<% if @error %>
+  <%= "<li>#{@error}</li><br/>" %>
+<% end %>
+</div>
+
+<hr style="width:17%; margin-left:50px;">
+
+<div style="margin-left:-25px;">
+<form class="pure-form pure-form-aligned" action="/user/login/" method="post" style="display:inline" >
+
+  <fieldset>
+	<div class="pure-control-group">
+	  <label>Username</label>
+	  <input name="login" id="login" placeholder="Enter your login" type="text" />
+  	</div>
+  	
+  	<div class="pure-control-group">
+  		<label>Password</label>
+  		<input name="pwd" id="pwd" maxlength="100" placeholder="Enter your password" type="password" />
+  	</div>
+  	
+  	<div style="margin-left:75px;" class="pure-controls">
+  		<input class="pure-button pure-button-primary" id="send" type="submit" value="Login">
+  	</div>
+  </fieldset>	
+</form> 
+</div>
+
+<div style="margin-left:50px;">
+<form class="pure-form" action="/user/signup/" method="get" style="display:inline" >
+  <div lass="pure-controls">
+  	<input class="pure-button pure-button-primary" id="register" type="submit" value="Register">
+  </div>
+</form>
+</div>

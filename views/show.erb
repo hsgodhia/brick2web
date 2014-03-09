@@ -1,0 +1,37 @@
+<style type="text/css">
+  p
+  {
+    font-style:italic; 
+    margin:0px;
+    font-family: inherit;
+  }
+</style>
+<div>
+  <div class="banner" style="display:table;">
+    <div class="welcome_mssg" style="box-sizing:border-box;-moz-box-sizing:border-box;padding-left: 25px; float: left;width: 60%; display: inline-block;">
+      <p style="font-size:60px;">Showcase</p>
+      <p style="font-size:25px;">Increase your online presence, showcase your menu of items to connect with more customers.</p>
+      <br/>
+    </div>
+
+    <div class="logo" style="box-sizing:border-box;
+  -moz-box-sizing:border-box;width: 40%; float:left;">
+    <img src="/images/Shopify-logo.jpg" style="width:300px;height:auto;">
+     <button class="pure-button pure-button-primary" style="margin-left:25px;" id="home">Home</button>
+    </div>
+   
+  </div>
+
+  <% if @items %>
+  <div class="images">
+  	<% @items.each do |k, v| %>
+  		<div class="img">
+  	 		<%= 
+  	 			"<a href=\"/itm/#{k}\"><img src=\"/images/#{k}\" width=\"250\" height=\"250\"></a>"
+  	 		%>
+  	 	<%= "<p style=\"width:250;\" class=\"desc\">#{@items[k]}</p>" %>
+  		</div>
+  	<% end %>
+  </div>
+  <% end %>
+</div>
