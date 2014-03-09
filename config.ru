@@ -1,3 +1,3 @@
 require './stream'
-run App
+run Sinatra.application
 
