@@ -1,4 +1,26 @@
-<h3 style="margin-left:50px">Sign In</h3>
+<style>
+#pseudo_body
+{
+  background-image: url('/images/img2.png');
+ background-repeat: no-repeat;
+ background-position: inherit;
+ background-size:cover;
+ width:100%;
+ height:100%;
+ float:right;
+}
+
+.lbl, li
+{
+  color:white; 
+  font-family: 'Open Sans', sans-serif;
+  font-size: 125%;
+  font-weight: bold;
+}
+
+</style>
+<div id="pseudo_body">
+<h3 class="lbl" style="margin-left:50px;">Sign In</h3>
 
 <div style="margin-left:50px">
 <% if @error %>
@@ -6,33 +28,34 @@
 <% end %>
 </div>
 
-<hr style="width:17%; margin-left:50px;">
+<hr style="width:25%; margin-left:50px;">
 
-<div style="margin-left:-25px;">
+<div style="margin-left:-50px;">
 <form class="pure-form pure-form-aligned" action="/user/login/" method="post" style="display:inline" >
 
   <fieldset>
 	<div class="pure-control-group">
-	  <label>Username</label>
+	  <label class="lbl">Username</label>
 	  <input name="login" id="login" placeholder="Enter your login" type="text" />
   	</div>
   	
   	<div class="pure-control-group">
-  		<label>Password</label>
+  		<label class="lbl">Password</label>
   		<input name="pwd" id="pwd" maxlength="100" placeholder="Enter your password" type="password" />
   	</div>
   	
-  	<div style="margin-left:75px;" class="pure-controls">
+  	<div style="margin-left:100px;" class="pure-controls">
   		<input class="pure-button pure-button-primary" id="send" type="submit" value="Login">
   	</div>
   </fieldset>	
 </form> 
 </div>
 
-<div style="margin-left:50px;">
+<div style="margin-left:150px; margin-top:-48px;">
 <form class="pure-form" action="/user/signup/" method="get" style="display:inline" >
   <div lass="pure-controls">
   	<input class="pure-button pure-button-primary" id="register" type="submit" value="Register">
   </div>
 </form>
+</div>
 </div>

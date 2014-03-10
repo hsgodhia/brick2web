@@ -270,7 +270,6 @@ get '/updates/:id', provides: 'text/event-stream' do
     #connections << out
     print "User :", params[:id], " is connected.\n"
    # out.callback { connections.delete(out) }
-    
   end
 end
 
