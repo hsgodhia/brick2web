@@ -149,6 +149,9 @@ get '/:login' do
   #send to signup if user not found in DB
   redirect '/user/signup/' if User.first(:login => params[:login]).nil?
   u = User.first(:id => session[:id])
+  
+  redirect '/user/login' if u.nil?
+  #getting NoMethodError method - isSeller here
   @isSeller = u.isSeller
   
   if @isSeller 
