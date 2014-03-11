@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'data_mapper' # requires all the gems listed above
-DataMapper.setup(:default, 'mysql://root:h@localhost/mydb')
+DataMapper.setup(:default, 'mysql://adminU5WTAdi:y-q5baTlpeqx@127.10.207.130:3306/mydb')
 #repository(:default).adapter.execute("SET sql_mode = ''")
 #removing the above statement throws the error
 #DataObjects::SQLError - Field 'login' doesn't have a default value:
