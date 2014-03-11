@@ -1,5 +1,4 @@
 source "https://rubygems.org"
-ruby '1.9.3'
 gem "executable-hooks", "~> 1.3.1"
 gem 'json', '1.8.1'
 gem 'sinatra', '1.4.4'
