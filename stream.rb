@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
 require 'sinatra'
+require 'eventmachine'
 require 'sinatra/flash'
 require_relative 'db/models'
 
