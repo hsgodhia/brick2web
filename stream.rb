@@ -3,12 +3,13 @@ require 'json'
 require 'sinatra'
 require 'eventmachine'
 require 'sinatra/flash'
+require 'sinatra/cookies'
 require_relative 'db/models'
 
 set :server, 'thin'
 set :bind, '0.0.0.0'
 set :public_folder, Proc.new { File.join(root, 'public') }
-enable :sessions
+enable :cookiess
 
 #----------------------------------
 #------server warmup or startup code
@@ -20,10 +21,10 @@ $conns_alive = {}
 #the above code gets executed once
 get '/itm/:id' do
   @item = Item.first(:path => params[:id])
-  redirect '/user/login' if session[:id].nil?
+  redirect '/user/login' if cookies[:id].nil?
 
   #confirm user logged in is the owner of the item
-  if @item.login.eql?(User.first(:id => session[:id]).login)
+  if @item.login.eql?(User.first(:id => cookies[:id]).login)
     @isSeller = true
     @js = ["seller_listing"]
   else
@@ -51,11 +52,11 @@ post "/upload" do
   ff.close()
 
   #create a record for this user
-  username = User.first(:id => session[:id]).login
+  username = User.first(:id => cookies[:id]).login
   it = Item.new
   it.attributes = { :login => username, :title => params[:title], :price => params[:price].to_i, :path => (counter-1) }    
   it.save
-  session[:success] = "The file was successfully uploaded!"
+  cookies[:success] = "The file was successfully uploaded!"
   redirect '/home'
 end
 
@@ -80,7 +81,7 @@ end
 post '/pricedrop/notify' do
   it = Item.first(:path => params[:item_path].to_i)
   pd = PriceDrop.new
-  pd.attributes = { :item_path => it.path, :item_title => it.title, :user_id => session[:id], :max_price => params[:max_price].to_i , :orignal_price => it.price }
+  pd.attributes = { :item_path => it.path, :item_title => it.title, :user_id => cookies[:id], :max_price => params[:max_price].to_i , :orignal_price => it.price }
   
   if pd.save
     "1You will be notified when this item cost below " + params[:max_price] 
@@ -111,12 +112,12 @@ end
 
 #-------------------------------------------------
 get '/clear' do
-  session.clear
+  cookies.clear
   redirect '/user/login'
 end
   
 get '/?' do
-  @id = session[:id]
+  @id = cookies[:id]
   response.headers['Cache-Control'] = 'no-cache, must-revalidate'
   @js = ["es"]
   #here you pass all the js files that will be needed by the template reciever
@@ -125,10 +126,10 @@ end
 
 get '/home' do
   #deactivate the previous success message of the image upload if any
-  if session[:id].nil? then
+  if cookies[:id].nil? then
     redirect '/user/login'
   end
-  u = User.first(:id => session[:id])
+  u = User.first(:id => cookies[:id])
   if !u.nil? then
     redirect "/#{u.login}"
   else
@@ -142,13 +143,13 @@ get '/admin/?' do
 end
 
 get '/:login' do
-  puts $conns_alive[session[:id]]
-  @id = session[:id]
+  puts $conns_alive[cookies[:id]]
+  @id = cookies[:id]
   @js = ["push3", "es"]
   @login = params[:login]
   #send to signup if user not found in DB
   redirect '/user/signup/' if User.first(:login => params[:login]).nil?
-  u = User.first(:id => session[:id])
+  u = User.first(:id => cookies[:id])
   
   redirect '/user/login' if u.nil?
   #getting NoMethodError method - isSeller here
@@ -158,11 +159,11 @@ get '/:login' do
     @allitems = Item.all(:login => u.login)
   end
 
-  @uploadmessage = session[:success] if !session[:success].nil?
-  session[:success] = nil
+  @uploadmessage = cookies[:success] if !cookies[:success].nil?
+  cookies[:success] = nil
 
   if @login.eql?(u.login)
-    @users = User.all(:id.not => session[:id])
+    @users = User.all(:id.not => cookies[:id])
     @owner = true
     #used to display the carouel that is present at the base of the page
     @items = {}
@@ -172,7 +173,7 @@ get '/:login' do
 
     #calculate all the latest notifs from my followers and display them here
     following = []
-    Followers.all(:user_id => session[:id]).each do |f|
+    Followers.all(:user_id => cookies[:id]).each do |f|
       following << f.follower_id
     end
     @notifs = []
@@ -185,7 +186,7 @@ get '/:login' do
     @price_drop_path = []
 
     #determine all the price-drop true cases and display them here
-    PriceDrop.all(:user_id => session[:id], :conditions => ['max_price >= orignal_price'], :order => [:created_at.desc], :limit => 10).each do |pd|
+    PriceDrop.all(:user_id => cookies[:id], :conditions => ['max_price >= orignal_price'], :order => [:created_at.desc], :limit => 10).each do |pd|
       @price_drop_title << pd.item_title
       @price_drop_price << pd.orignal_price.to_s
       @price_drop_path << pd.item_path
@@ -198,8 +199,8 @@ end
 #User sign-in and sign-up mechansim
 get '/user/login/?' do
   #@js = ["login"], with ajax the redirect doesnt work
-  u = User.first(:id => session[:id])
-  if !session[:id].nil? and !u.nil? then
+  u = User.first(:id => cookies[:id])
+  if !cookies[:id].nil? and !u.nil? then
     redirect "/#{u.login}"
   else
     erb :login
@@ -214,7 +215,7 @@ post '/user/login/?' do
     @error = "Username and the password do not match"
     halt erb :login
   else
-    session[:id] = User.first(:login => login).id
+    cookies[:id] = User.first(:login => login).id
     #User.get(:login) did not work out bcoze get is available only for "key fields like id"
     redirect "/#{login}"
   end
@@ -238,7 +239,7 @@ end
 #------------
 #handlers for the follow and followers model
 post '/follow' do
-  user_id = session[:id]
+  user_id = cookies[:id]
   follower_id = User.first(:login => params[:user_name]).id
   
   r = Followers.new
@@ -279,14 +280,14 @@ end
 
 #with any post request data is sent, this is by default stored in the hash "params"
 post '/push' do
-  print "User: ", session[:id], "wants to send a message.\n"
-  u = User.first(:id => session[:id])
+  print "User: ", cookies[:id], "wants to send a message.\n"
+  u = User.first(:id => cookies[:id])
   name = u.login
   is_seller = u.isSeller
   text = params[:mssg]+", @"+name
 
   note = Notif.new
-  note.attributes = { :notification => text, :owner_id => session[:id] }
+  note.attributes = { :notification => text, :owner_id => cookies[:id] }
   note.save
 #when a logged in user click's push, then identify all of his followers and send a message over their channel which is /updates/:id
   notification = params.merge( {'time' => timestamp, 'user' => name } ).to_json
@@ -296,13 +297,13 @@ post '/push' do
 
   #I think there is no use of the variable notifications
   
-  #$conns_alive[session[:id]].each { |out| out << "data: #{notification}\n\n" }
+  #$conns_alive[cookies[:id]].each { |out| out << "data: #{notification}\n\n" }
   #retrieve all users, for whom I'm a follower_id
-  Followers.all(:follower_id => session[:id]).each do |rel|
-    print "Sending message of: ", session[:id], " to: ", rel.user_id, "\n"
+  Followers.all(:follower_id => cookies[:id]).each do |rel|
+    print "Sending message of: ", cookies[:id], " to: ", rel.user_id, "\n"
     $conns_alive[rel.user_id] << "data: #{notification}\n\n" if !$conns_alive[rel.user_id].nil?
   end
-  #$conns_alive[session[:id]] << "data: #{notification}\n\n" 
+  #$conns_alive[cookies[:id]] << "data: #{notification}\n\n" 
 end
 
 post '/missed_data' do
