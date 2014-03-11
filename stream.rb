@@ -266,7 +266,6 @@ get '/updates/:id', provides: 'text/event-stream' do
   cache_control :no_cache
   response.headers['Connection'] = 'keep-alive'
   stream :keep_open do |out|
-    EM.run { EventMachine::PeriodicTimer.new(20) { out << "data: \n\n" } }
     $conns_alive[params[:id].to_i] = out
     out.callback { $conns_alive[params[:id].to_i] = nil }
 
